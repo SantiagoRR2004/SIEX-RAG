@@ -1,0 +1,17 @@
+name: Fetch Secret to Local
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download-secret:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Push Secret to Local
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
