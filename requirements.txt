@@ -1,2 +1,5 @@
 black
 python-dotenv
+langchain
+langgraph
+langchain_openai
