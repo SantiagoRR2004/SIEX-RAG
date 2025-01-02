@@ -3,3 +3,7 @@ python-dotenv
 langchain
 langgraph
 langchain_openai
+langchain_community
+jq
+langchain_huggingface
+langchain_chroma
