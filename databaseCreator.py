@@ -5,6 +5,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 import os
+import pickle
+import downloader
 
 
 def createVectorStore(
@@ -25,11 +27,16 @@ def createVectorStore(
     Returns:
         - None
     """
-    if os.path.exists(destitationFolder) and not createAgain:
+    if (
+        os.path.exists(destitationFolder)
+        and os.path.exists("embeddings.pkl")
+        and not createAgain
+    ):
         print(f"\t- indice {destitationFolder} ya existe")
 
     else:
         folder = os.path.dirname(os.path.abspath(__file__))
+        downloader.downloadTechniquesEnterpriseAttack()
 
         print("Cargando documentos ...")
         loader = JSONLoader(
@@ -60,6 +67,9 @@ def createVectorStore(
         else:
             raise ValueError(f"El embedder {embedder} no es válido")
 
+        with open("embeddings.pkl", "wb") as f:
+            pickle.dump(embeddings, f)
+
         vector_store = Chroma(
             collection_name="cve_collection",
             embedding_function=embeddings,
@@ -70,5 +80,27 @@ def createVectorStore(
         print(f"\t- indice {destitationFolder} creado")
 
 
+def loadVectorStore(storeFolder: str = "./chroma_cve_db") -> Chroma:
+    """
+    Load the vector store.
+
+    Args:
+        - storeFolder (str): The folder where the vector store is saved.
+
+    Returns:
+        - Chroma: The vector store.
+    """
+    createVectorStore(destitationFolder=storeFolder)
+
+    with open("embeddings.pkl", "rb") as f:
+        embeddings = pickle.load(f)
+
+    return Chroma(
+        collection_name="cve_collection",
+        embedding_function=embeddings,
+        persist_directory=storeFolder,
+    )
+
+
 if __name__ == "__main__":
-    createVectorStore()
+    createVectorStore(createAgain=True)
