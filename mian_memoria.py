@@ -116,8 +116,10 @@ def createChatbot() -> StateGraph:
     memory = MemorySaver()
     graph = graph_builder.compile(checkpointer=memory)
 
-    # from IPython.display import Image, display
-    # display(Image(graph.get_graph().draw_mermaid_png()))
+    # from PIL import Image
+    # from io import BytesIO
+    # image = Image.open(BytesIO(graph.get_graph().draw_mermaid_png()))
+    # image.show()
 
     return graph
 
