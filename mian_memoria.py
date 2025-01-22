@@ -1,13 +1,9 @@
-import downloader
 import databaseCreator
 from langgraph.graph import START, StateGraph, MessagesState, END
 from typing_extensions import List, TypedDict
 from langchain_core.documents.base import Document
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
-from langchain_chroma import Chroma
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.tools import tool
 from langchain_core.messages import SystemMessage
@@ -18,37 +14,6 @@ import os
 
 
 # codigo basado en: https://python.langchain.com/docs/tutorials/qa_chat_history/
-def loadVectorStore(
-    storeFolder: str = "./chroma_cve_db", embedder: str = "HuggingFaceEmbeddings"
-) -> Chroma:
-    """
-    Load the vector store.
-
-    Args:
-        - storeFolder (str): The folder where the vector store is saved.
-        - embedder (str): The embedder to use. It can be "HuggingFaceEmbeddings" or "OpenAIEmbeddings".
-
-    Returns:
-        - Chroma: The vector store.
-    """
-    if embedder == "OpenAIEmbeddings":
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small", api_key=os.environ["OPENAI_API_KEY"]
-        )
-    elif embedder == "HuggingFaceEmbeddings":
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-    else:
-        raise ValueError(f"El embedder {embedder} no es válido")
-
-    return Chroma(
-        collection_name="cve_collection",
-        embedding_function=embeddings,
-        persist_directory=storeFolder,
-    )
-
-
 def createChatbot() -> StateGraph:
     """
     Create the chatbot.
@@ -57,7 +22,7 @@ def createChatbot() -> StateGraph:
         - StateGraph: The chatbot.
     """
     load_dotenv()  # carga OPENAI_API_KEY del fichero .env
-    vector_store = loadVectorStore()
+    vector_store = databaseCreator.loadVectorStore()
 
     llm_rag = ChatOpenAI(model="gpt-4o-mini", api_key=os.environ["OPENAI_API_KEY"])
 
@@ -178,6 +143,4 @@ def main():
 
 
 if __name__ == "__main__":
-    downloader.downloadTechniquesEnterpriseAttack()
-    databaseCreator.createVectorStore()
     main()
