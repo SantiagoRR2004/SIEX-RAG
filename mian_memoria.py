@@ -104,7 +104,6 @@ def createChatbot() -> StateGraph:
     def generate(state: MessagesState):
         """Generate answer."""
         # Get generated ToolMessages
-        print(state["messages"])
         recent_tool_messages = []
         for message in reversed(state["messages"]):
             if message.type == "tool":
