@@ -9,13 +9,33 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from dotenv import load_dotenv
+import random
 import sys
 import os
 
 
-def createChatbot() -> StateGraph:
+def generate_tread_id(excluded_ids: List[str] = []) -> str:
+    """
+    Generate a thread id.
+
+    Args:
+        - excluded_ids (List[str]): The list of excluded thread ids.
+
+    Returns:
+        - str: The generated thread id.
+    """
+    while True:
+        random_number = random.randint(1000, 9999)
+        if random_number not in excluded_ids:
+            return str(random_number)
+
+
+def createChatbot(debug: bool = False) -> StateGraph:
     """
     Create the chatbot.
+
+    Args:
+        - debug (bool): If True, debug information will be printed.
 
     Returns:
         - StateGraph: The chatbot.
@@ -42,9 +62,8 @@ def createChatbot() -> StateGraph:
     )
 
     class State(TypedDict):
-        messages: Annotated[
-            Sequence[BaseMessage], add_messages
-        ]  # The messages in the conversation.
+        # The messages in the conversation.
+        messages: Annotated[Sequence[BaseMessage], add_messages]
         context: List[Document]  # The context to answer the question.
 
     def retrieveContext(state: State, debug: bool = False) -> State:
@@ -58,6 +77,7 @@ def createChatbot() -> StateGraph:
         Returns:
             - State: The state with the retrieved context.
         """
+        # Extract the query from the last message.
         query = state["messages"][-1].content
         retrieved_documents = vector_store.similarity_search(query, k=3)
         if debug:
@@ -86,6 +106,8 @@ def createChatbot() -> StateGraph:
         """
         docs_content = "\n\n".join(doc.page_content for doc in state["context"])
         query = state["messages"][-1].content
+        # Invoke the RAG prompt.
+        # We pass the messages (except the last one), the question and the context.
         messages = rag_prompt.invoke(
             {
                 "messages": state["messages"][:-1],
@@ -112,8 +134,8 @@ def createChatbot() -> StateGraph:
 
     graph_builder = StateGraph(State).add_sequence(
         [
-            ("retrieve", lambda state: retrieveContext(state, debug=True)),
-            ("generate", lambda state: generateAnswer(state, debug=True)),
+            ("retrieve", lambda state: retrieveContext(state, debug=debug)),
+            ("generate", lambda state: generateAnswer(state, debug=debug)),
         ]
     )
     graph_builder.add_edge(START, "retrieve")
@@ -123,8 +145,10 @@ def createChatbot() -> StateGraph:
 
 
 def main():
-    graph = createChatbot()
-    config = {"configurable": {"thread_id": "1111"}}
+    graph = createChatbot(debug=True)
+    thread_id = generate_tread_id()
+    excluded_ids = [thread_id]
+    config = {"configurable": {"thread_id": thread_id}}
     print(
         "CHATBOT INICIADO.\nFinalizar sesión con los comandos :salir, :exit o :terminar"
     )
@@ -133,10 +157,15 @@ def main():
         if query.lower() in [":salir", ":exit", ":terminar"]:
             sys.exit("Gracias por hablar conmigo!!!!")
 
-        query_message = [HumanMessage(query)]
-        rag_response = graph.invoke({"messages": query_message}, config)
-        rag_response["messages"][-1].pretty_print()
-        print()
+        if query.lower() == ":reset":
+            thread_id = generate_tread_id(excluded_ids)
+            config = {"configurable": {"thread_id": thread_id}}
+            excluded_ids.append(thread_id)
+        else:
+            query_message = [HumanMessage(query)]
+            rag_response = graph.invoke({"messages": query_message}, config)
+            rag_response["messages"][-1].pretty_print()
+            print()
 
 
 if __name__ == "__main__":
