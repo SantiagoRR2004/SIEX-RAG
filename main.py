@@ -30,9 +30,10 @@ def createChatbot() -> StateGraph:
             (
                 "system",
                 "You are an assistant for question-answering tasks in cybersecurity domains. "
-                + "Use the provided pieces of retrieved context to give the MITRE technique and to give a solution. "
+                + "Use the provided pieces of retrieved context to give the MITRE technique and a solution. "
                 + "If you don't know the answer, just say that you don't know. "
-                + "Use three sentences maximum and keep the answer concise.",
+                + "Use three sentences maximum and keep the answer concise."
+                + "Then, answer questions and clarifications regarding your proposed answer/solution",
             ),
             # We will utilize MessagesPlaceholder to pass all the messages in.
             MessagesPlaceholder(variable_name="messages"),

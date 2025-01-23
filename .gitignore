@@ -4,3 +4,4 @@ __pycache__
 techniquesEnterpriseAttack.json
 chroma_cve_db/
 embeddings.pkl
+chroma_mitre_db/

@@ -11,12 +11,12 @@ import downloader
 
 def createVectorStore(
     *,
-    destitationFolder: str = "./chroma_cve_db",
+    destitationFolder: str = "./chroma_mitre_db",
     createAgain: bool = False,
     embedder: str = "HuggingFaceEmbeddings",
 ) -> None:
     """
-    Create a vector store with the CVEs.
+    Create a vector store with the mitres.
 
     Args:
         - destitationFolder (str): The folder where the vector store will be saved.
@@ -27,6 +27,13 @@ def createVectorStore(
     Returns:
         - None
     """
+
+    def extract_metadata(record: dict, metadata: dict) -> dict:
+        metadata["id"] = record["id"]
+        metadata["url"] = record["url"]
+
+        return metadata
+
     if (
         os.path.exists(destitationFolder)
         and os.path.exists("embeddings.pkl")
@@ -43,6 +50,8 @@ def createVectorStore(
             file_path=os.path.join(folder, "data", "techniquesEnterpriseAttack.json"),
             jq_schema=".[]",
             text_content=False,
+            content_key="description",
+            metadata_func=extract_metadata,
         )
 
         docs = loader.load()
@@ -71,7 +80,7 @@ def createVectorStore(
             pickle.dump(embeddings, f)
 
         vector_store = Chroma(
-            collection_name="cve_collection",
+            collection_name="mitre_collection",
             embedding_function=embeddings,
             persist_directory=destitationFolder,  # Where to save data locally, remove if not necessary
         )
@@ -80,7 +89,7 @@ def createVectorStore(
         print(f"\t- indice {destitationFolder} creado")
 
 
-def loadVectorStore(storeFolder: str = "./chroma_cve_db") -> Chroma:
+def loadVectorStore(storeFolder: str = "./chroma_mitre_db") -> Chroma:
     """
     Load the vector store.
 
@@ -96,7 +105,7 @@ def loadVectorStore(storeFolder: str = "./chroma_cve_db") -> Chroma:
         embeddings = pickle.load(f)
 
     return Chroma(
-        collection_name="cve_collection",
+        collection_name="mitre_collection",
         embedding_function=embeddings,
         persist_directory=storeFolder,
     )
