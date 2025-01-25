@@ -25,6 +25,7 @@ class MITREATTACKChatbot:
         self.k = documentsInContext
         self.model = self.getLLMModel()
         self.messages = [self.getInitialPrompt()]
+        self.vectorStore = self.getVectorStore()
 
     def main(self):
         print(
@@ -103,7 +104,7 @@ class MITREATTACKChatbot:
         Returns:
             - list[Document]: The retrieved documents.
         """
-        retrieved_docs = self.getVectorStore().similarity_search(query, k=self.k)
+        retrieved_docs = self.vectorStore.similarity_search(query, k=self.k)
 
         if self.verbose:
             print(
