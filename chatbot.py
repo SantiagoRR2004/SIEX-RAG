@@ -21,7 +21,7 @@ class Chatbot(ABC):
         self.verbose = verbose
         self.k = documentsInContext
         self.model = self.getLLMModel()
-        self.messages = [self.getInitialPrompt()]
+        self.resetMemory()
         self.vectorStore = self.getVectorStore()
 
     def main(self):
@@ -34,30 +34,34 @@ class Chatbot(ABC):
                 sys.exit("Gracias por hablar conmigo!!!!")
 
             if query.lower() == ":reset":
-                pass
+                self.resetMemory()
 
-            # If there is only one message we retrieve the context
-            if len(self.messages) == 1:
-                self.retrieveContext(query)
+            else:
 
-                # # Chec if there is a way to make it work with ToolMessage
-                # self.messages.append(
-                #     langchain_core.messages.ToolMessage(
-                #         self.serializeContext(), tool_call_id="unique_tool_call_id_123"
-                #     )
-                # )
+                # If there is only one message we retrieve the context
+                if len(self.messages) == 1:
+                    self.retrieveContext(query)
+
+                    # # Check if there is a way to make it work with ToolMessage
+                    # self.messages.append(
+                    #     langchain_core.messages.ToolMessage(
+                    #         self.serializeContext(), tool_call_id="unique_tool_call_id_123"
+                    #     )
+                    # )
+                    self.messages.append(
+                        langchain_core.messages.SystemMessage(self.serializeContext())
+                    )
+
                 self.messages.append(
-                    langchain_core.messages.SystemMessage(self.serializeContext())
+                    langchain_core.messages.HumanMessage(content=query)
                 )
 
-            self.messages.append(langchain_core.messages.HumanMessage(content=query))
+                response = self.callModel()
 
-            response = self.callModel()
+                response.pretty_print()
 
-            response.pretty_print()
-
-            # We add the response to the messages so it has memory
-            self.messages.append(response)
+                # We add the response to the messages so it has memory
+                self.messages.append(response)
 
     @abstractmethod
     def getLLMModel(self) -> langchain_core.language_models.BaseChatModel:
@@ -190,3 +194,21 @@ class Chatbot(ABC):
         self.lastResponse = response
 
         return response
+
+    def resetMemory(self) -> None:
+        """
+        Reset the memory of the chatbot.
+
+        Args:
+            - None
+
+        Returns:
+            - None
+        """
+
+        if getattr(self, "messages", None) is not None:
+            print("\nMemoria reseteada.\n")
+
+        self.messages = [self.getInitialPrompt()]
+        self.context = []
+        self.lastResponse = None
