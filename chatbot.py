@@ -2,7 +2,6 @@ import langchain_core.language_models
 import langchain_core.vectorstores
 import langchain_core.documents
 import langchain_core.messages
-import sys
 from abc import ABC, abstractmethod
 
 
@@ -32,7 +31,8 @@ class Chatbot(ABC):
         while True:
             query = self.getUserInput()
             if query.lower() in [":salir", ":exit", ":terminar"]:
-                sys.exit("Gracias por hablar conmigo!!!!")
+                print("Gracias por hablar conmigo!!!!")
+                break
 
             if query.lower() == ":reset":
                 self.resetMemory()
