@@ -3,6 +3,8 @@ import random
 import chatbotMITRE
 import io
 from contextlib import redirect_stdout
+import visualization
+import os
 
 
 class testChatbot(chatbotMITRE.MITREATTACKChatbot):
@@ -52,6 +54,8 @@ def oneTimeUserInput(self) -> str:
 
 
 if __name__ == "__main__":
+    # Get the terminal size
+    terminal = visualization.getTerminalSize()
 
     # Load the dataset
     dataset = load_dataset("dattaraj/security-attacks-MITRE")
@@ -76,6 +80,14 @@ if __name__ == "__main__":
         chat = testChatbot()
         chat.main()
 
-    print(f"{input}")
+    # Clear the terminal screen
+    os.system("cls" if os.name == "nt" else "clear")
 
-    print(f"{output}")
+    print(" Query given ".center(terminal[0], "="))
+    print(input)
+
+    print(" Expected output ".center(terminal[0], "="))
+    print(output)
+
+    print(" Model response ".center(terminal[0], "="))
+    print(chat.lastResponse.content)
