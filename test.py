@@ -1,6 +1,8 @@
 from datasets import load_dataset, concatenate_datasets
 import random
 import chatbotMITRE
+import io
+from contextlib import redirect_stdout
 
 
 class testChatbot(chatbotMITRE.MITREATTACKChatbot):
@@ -67,8 +69,12 @@ if __name__ == "__main__":
     # We set the function that gets the input
     setattr(testChatbot, "getUserInput", oneTimeUserInput)
 
-    chat = testChatbot()
-    chat.main()
+    # Create an in-memory file object to capture output, effectively suppressing it
+    suppress_output = io.StringIO()
+
+    with redirect_stdout(suppress_output):
+        chat = testChatbot()
+        chat.main()
 
     print(f"{input}")
 
