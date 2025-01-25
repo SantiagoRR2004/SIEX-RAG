@@ -7,3 +7,4 @@ langchain_community
 jq
 langchain_huggingface
 langchain_chroma
+datasets
