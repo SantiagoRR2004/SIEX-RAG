@@ -38,6 +38,29 @@ class MITREATTACKChatbot:
             if query.lower() == ":reset":
                 pass
 
+            # If there is only one message we retrieve the context
+            if len(self.messages) == 1:
+                self.retrieveContext(query)
+
+                # # Chec if there is a way to make it work with ToolMessage
+                # self.messages.append(
+                #     langchain_core.messages.ToolMessage(
+                #         self.serializeContext(), tool_call_id="unique_tool_call_id_123"
+                #     )
+                # )
+                self.messages.append(
+                    langchain_core.messages.SystemMessage(self.serializeContext())
+                )
+
+            self.messages.append(langchain_core.messages.HumanMessage(content=query))
+
+            response = self.callModel()
+
+            print(response.content)
+
+            # We add the response to the messages so it has memory
+            self.messages.append(response)
+
     def getLLMModel(self) -> langchain_core.language_models.BaseChatModel:
         """
         Get the large language model.
@@ -160,3 +183,27 @@ class MITREATTACKChatbot:
         )
 
         return langchain_core.messages.SystemMessage(content=message)
+
+    def callModel(self) -> langchain_core.messages.AIMessage:
+        """
+        Call the model.
+
+        It generates the response to the user
+        using the model.
+
+        Args:
+            - None
+
+        Returns:
+            - AIMessage: The response to the user.
+        """
+        response = self.model.invoke(self.messages)
+
+        self.lastResponse = response
+
+        return response
+
+
+if __name__ == "__main__":
+    chatbot = MITREATTACKChatbot()
+    chatbot.main()
