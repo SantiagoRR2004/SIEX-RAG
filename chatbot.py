@@ -2,9 +2,11 @@ import langchain_core.language_models
 import langchain_core.vectorstores
 import langchain_core.documents
 import langchain_openai
+import langchain_core.messages
 from dotenv import load_dotenv
 import os
 import databaseCreator
+import sys
 
 
 class MITREATTACKChatbot:
@@ -21,9 +23,20 @@ class MITREATTACKChatbot:
         """
         self.verbose = verbose
         self.k = documentsInContext
+        self.model = self.getLLMModel()
+        self.messages = [self.getInitialPrompt()]
 
     def main(self):
-        pass
+        print(
+            "CHATBOT INICIADO.\nFinalizar sesión con los comandos :salir, :exit o :terminar"
+        )
+        while True:
+            query = input(">> ")
+            if query.lower() in [":salir", ":exit", ":terminar"]:
+                sys.exit("Gracias por hablar conmigo!!!!")
+
+            if query.lower() == ":reset":
+                pass
 
     def getLLMModel(self) -> langchain_core.language_models.BaseChatModel:
         """
@@ -53,9 +66,6 @@ class MITREATTACKChatbot:
             - VectorStore: The vector store.
         """
         return databaseCreator.loadVectorStore()
-
-    def buildGraph(self):
-        pass
 
     def retrieveContext(self, query: str) -> list[langchain_core.documents.Document]:
         """
@@ -127,3 +137,26 @@ class MITREATTACKChatbot:
             print()
 
         return "\n\n".join(serializedDocuments)
+
+    def getInitialPrompt(self) -> langchain_core.messages.SystemMessage:
+        """
+        Get the initial prompt.
+
+        It is a message that explains to
+        the chatbot what it has to do.
+
+        Args:
+            - None
+
+        Returns:
+            - SystemMessage: The initial prompt.
+        """
+        message = (
+            "You are an assistant for question-answering tasks in cybersecurity domains. "
+            + "Use the provided pieces of retrieved context to give the MITRE technique and a solution. "
+            + "If you don't know the answer, just say that you don't know. "
+            + "Use three sentences maximum and keep the answer concise."
+            + "Then, answer questions and clarifications regarding your proposed answer/solution"
+        )
+
+        return langchain_core.messages.SystemMessage(content=message)
