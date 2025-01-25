@@ -26,10 +26,11 @@ class Chatbot(ABC):
 
     def main(self):
         print(
-            "CHATBOT INICIADO.\nFinalizar sesión con los comandos :salir, :exit o :terminar"
+            "CHATBOT INICIADO.\n"
+            + "Finalizar sesión con los comandos :salir, :exit o :terminar"
         )
         while True:
-            query = input(">> ")
+            query = self.getUserInput()
             if query.lower() in [":salir", ":exit", ":terminar"]:
                 sys.exit("Gracias por hablar conmigo!!!!")
 
@@ -212,3 +213,16 @@ class Chatbot(ABC):
         self.messages = [self.getInitialPrompt()]
         self.context = []
         self.lastResponse = None
+
+    @abstractmethod
+    def getUserInput(self) -> str:
+        """
+        Get the user input.
+
+        Args:
+            - None
+
+        Returns:
+            - str: The user input.
+        """
+        pass

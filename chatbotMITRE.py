@@ -62,6 +62,18 @@ class MITREATTACKChatbot(chatbot.Chatbot):
 
         return langchain_core.messages.SystemMessage(content=message)
 
+    def getUserInput(self) -> str:
+        """
+        Get the user input.
+
+        Args:
+            - None
+
+        Returns:
+            - str: The user input.
+        """
+        return input(">> ")
+
 
 if __name__ == "__main__":
     chat = MITREATTACKChatbot()
