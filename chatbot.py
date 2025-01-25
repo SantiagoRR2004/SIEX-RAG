@@ -57,7 +57,7 @@ class MITREATTACKChatbot:
 
             response = self.callModel()
 
-            print(response.content)
+            response.pretty_print()
 
             # We add the response to the messages so it has memory
             self.messages.append(response)
