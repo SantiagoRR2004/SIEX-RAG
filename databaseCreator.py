@@ -29,6 +29,11 @@ def createVectorStore(
     """
 
     def extract_metadata(record: dict, metadata: dict) -> dict:
+
+        # It is exists we remove the source because we only have one json file
+        if "source" in metadata:
+            del metadata["source"]
+
         metadata["id"] = record["id"]
         metadata["url"] = record["url"]
         metadata["name"] = record["name"]
@@ -57,7 +62,8 @@ def createVectorStore(
             file_path=os.path.join(folder, "data", "techniquesEnterpriseAttack.json"),
             jq_schema=".[]",
             text_content=False,
-            content_key="description",
+            content_key="description",  # It is only indexing by the description
+            # It only searches by a fragment and only stores that fragment
             metadata_func=extract_metadata,
         )
 
