@@ -31,6 +31,13 @@ def createVectorStore(
     def extract_metadata(record: dict, metadata: dict) -> dict:
         metadata["id"] = record["id"]
         metadata["url"] = record["url"]
+        metadata["name"] = record["name"]
+
+        tactics = record.get("tactics", [])
+        metadata["tactics"] = ", ".join(tactics)
+
+        platforms = record.get("platforms", [])
+        metadata["platforms"] = ", ".join(platforms)
 
         return metadata
 
