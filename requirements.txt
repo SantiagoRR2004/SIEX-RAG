@@ -8,3 +8,4 @@ jq
 langchain_huggingface
 langchain_chroma
 datasets
+tqdm
