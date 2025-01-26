@@ -5,6 +5,7 @@ import io
 from contextlib import redirect_stdout
 import visualization
 import os
+import re
 
 
 class testChatbot(chatbotMITRE.MITREATTACKChatbot):
@@ -51,6 +52,28 @@ def oneTimeUserInput(self) -> str:
         return input
     else:
         return ":exit"
+
+
+def getMITRETechnique(text: str) -> str:
+    """
+    Get the MITRE technique from the text
+
+    Args:
+        - text (str): The text
+
+    Returns:
+        - str: The MITRE technique
+    """
+    # Regular expression to extract only the technique identifier
+    pattern = r"T\d{4}(\.\d{3})?"
+
+    # We get the MITRE technique
+    match = re.search(pattern, text)
+
+    # If we find the technique, we return it
+    if match:
+        return match.group(0)
+    return None
 
 
 if __name__ == "__main__":
