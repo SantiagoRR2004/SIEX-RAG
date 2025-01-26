@@ -29,18 +29,39 @@ def createVectorStore(
     """
 
     def extract_metadata(record: dict, metadata: dict) -> dict:
+        """
+        This is where all the information that we do not index by needs
+        to be stored so the model can use it later.
 
+        Args:
+            - record (dict): The record.
+            - metadata (dict): The metadata.
+
+        Returns:
+            - dict: The metadata.
+        """
         # It is exists we remove the source because we only have one json file
         if "source" in metadata:
             del metadata["source"]
 
+        # We also remove the seq_num because it is not useful
+        if "seq_num" in metadata:
+            del metadata["seq_num"]
+
+        # This is the id of the MITRE technique
         metadata["id"] = record["id"]
+
+        # This is the URL of the MITRE technique
         metadata["url"] = record["url"]
+
+        # This is the name of the MITRE technique
         metadata["name"] = record["name"]
 
+        # This are the tactics used by the MITRE technique
         tactics = record.get("tactics", [])
         metadata["tactics"] = ", ".join(tactics)
 
+        # This are the platforms affected by the MITRE technique
         platforms = record.get("platforms", [])
         metadata["platforms"] = ", ".join(platforms)
 
