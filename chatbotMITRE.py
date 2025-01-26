@@ -81,11 +81,13 @@ class MITREATTACKChatbot(chatbot.Chatbot):
         It returns a string with
         the metadata and the content of the documents.
 
-        The metadata had the folowing keys:
-            {id, url, seq_num, source}
-
-        Later we could eliminate the source attribute
-        because we only have on json.
+        The metadata is a dictionary that requires
+        the following keys:
+            - id: The ID of the MITRE technique.
+            - url: The URL of the MITRE technique.
+            - name: The name of the MITRE technique.
+            - tactics: The tactics used by the MITRE technique.
+            - platforms: The platforms affected by the MITRE technique.
 
         The content is a string.
 
@@ -103,9 +105,12 @@ class MITREATTACKChatbot(chatbot.Chatbot):
 
             metadata = doc.metadata
 
-            serializedDocuments.append(
-                f"Source: {metadata}\nContent: {doc.page_content}"
-            )
+            serializedDocument = f"Content: {doc.page_content}\n"
+
+            serializedDocument += f"The ID, URL and name of the MITRE technique are {metadata['id']}, {metadata['url']} and {metadata['name']}, respectively."
+            serializedDocument += f"The tactics and platforms affected are {metadata['tactics']} and {metadata['platforms']}."
+
+            serializedDocuments.append(serializedDocument)
 
             if set(metadata.keys()) not in metadataKeys:
                 metadataKeys.append(set(metadata.keys()))
