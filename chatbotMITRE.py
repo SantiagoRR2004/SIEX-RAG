@@ -74,6 +74,49 @@ class MITREATTACKChatbot(chatbot.Chatbot):
         """
         return input(">> ")
 
+    def serializeContext(self) -> str:
+        """
+        Serialize the context.
+
+        It returns a string with
+        the metadata and the content of the documents.
+
+        The metadata had the folowing keys:
+            {id, url, seq_num, source}
+
+        Later we could eliminate the source attribute
+        because we only have on json.
+
+        The content is a string.
+
+        Args:
+            - None
+
+        Returns:
+            - str: The serialized context.
+        """
+        serializedDocuments = []
+
+        metadataKeys = []
+
+        for doc in self.context:
+
+            metadata = doc.metadata
+
+            serializedDocuments.append(
+                f"Source: {metadata}\nContent: {doc.page_content}"
+            )
+
+            if set(metadata.keys()) not in metadataKeys:
+                metadataKeys.append(set(metadata.keys()))
+
+        if self.verbose:
+            for keys in metadataKeys:
+                print(keys)
+            print()
+
+        return "\n\n".join(serializedDocuments)
+
 
 if __name__ == "__main__":
     chat = MITREATTACKChatbot(verbose=True)
