@@ -76,5 +76,5 @@ class MITREATTACKChatbot(chatbot.Chatbot):
 
 
 if __name__ == "__main__":
-    chat = MITREATTACKChatbot()
+    chat = MITREATTACKChatbot(verbose=True)
     chat.main()
